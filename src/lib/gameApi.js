@@ -87,6 +87,10 @@ export function joinMatchmaking(name) {
   });
 }
 
+export function prepareMatchmaking(signal) {
+  return apiRequest("/matchmaking/prepare", { method: "POST", signal });
+}
+
 export function getQueueStatus(queueId, signal) {
   return apiRequest(`/matchmaking/queue/${encodeURIComponent(queueId)}`, { signal });
 }

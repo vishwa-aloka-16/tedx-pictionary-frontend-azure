@@ -139,6 +139,10 @@ export default function LeaderboardScreen() {
             // The final canvas arrives after the already-decided winner event.
             // Update that announcement rather than announcing the round twice.
             setAnnouncements((current) => current.map((item) => {
+              if (item.isGameWinner) {
+                const updatedGame = completedGames.find((game) => game.key === item.key);
+                return updatedGame ? { ...item, scoreBreakdown: updatedGame.scoreBreakdown } : item;
+              }
               const updated = completedWins.find((round) => round.key === item.key);
               return updated && (updated.drawingUrl !== item.drawingUrl || JSON.stringify(updated.drawings) !== JSON.stringify(item.drawings))
                 ? { ...item, drawingUrl: updated.drawingUrl, drawings: updated.drawings, prompt: updated.prompt } : item;
@@ -229,6 +233,7 @@ export default function LeaderboardScreen() {
           {winnerAnnouncement.isGameWinner && winnerAnnouncement.scoreBreakdown && (
             <div className="final-score-content">
               <HighScoreCelebration rankings={winnerAnnouncement.scoreBreakdown.global_rankings} />
+              {winnerAnnouncement.scoreBreakdown.leaderboard_save_status === "pending" && <p role="status">Saving scores. Global rankings will update when confirmed.</p>}
               <ScoreBreakdown result={winnerAnnouncement.scoreBreakdown} />
             </div>
           )}

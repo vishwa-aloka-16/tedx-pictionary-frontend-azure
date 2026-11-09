@@ -210,6 +210,7 @@ function FinalResultOverlay({
             <b>{game.global_rankings?.[playerId]?.rank ? `#${game.global_rankings[playerId].rank}` : "\u2014"}</b>
           </div>
         </div>
+        {game.leaderboard_save_status === "pending" && <p className="waiting-notice" role="status">Saving your score. Your global position will appear once it is confirmed.</p>}
         <ArtworkShare artworkId={game.artwork_id} qrOnly />
         <div className="final-actions">
           <button

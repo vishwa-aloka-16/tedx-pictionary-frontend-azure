@@ -8,6 +8,9 @@ export default function NameScreen({
   onBack,
   busy,
   error,
+  ready = true,
+  preparationError = "",
+  onRetry,
 }) {
   const [name, setName] = useState("");
   const [validationError, setValidationError] =
@@ -15,6 +18,7 @@ export default function NameScreen({
 
   function submit(event) {
     event.preventDefault();
+    if (!ready) return;
 
     const cleanedName = name.trim();
 
@@ -59,6 +63,8 @@ export default function NameScreen({
         </p>
 
         <form onSubmit={submit}>
+          {!ready && <p className="waiting-notice" role="status">{preparationError || "Getting the game ready. You can enter your name while the services connect…"}</p>}
+          {preparationError && <button type="button" className="secondary-button" onClick={onRetry}>Try again</button>}
           <label className="form-field">
             <span>PLAYER NAME</span>
 
@@ -82,11 +88,11 @@ export default function NameScreen({
 
           <button
             className="primary-button"
-            disabled={busy}
+            disabled={busy || !ready}
           >
             {busy
               ? "Finding opponent..."
-              : "Join game"}
+              : !ready ? "Getting game ready…" : "Join game"}
 
             <span>→</span>
           </button>

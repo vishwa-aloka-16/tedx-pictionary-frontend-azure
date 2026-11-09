@@ -6,6 +6,7 @@ import BackendGate from "./components/BackendGate";
 
 import useGameConnection from "./hooks/useGameConnection";
 import useMatchmakingQueue from "./hooks/useMatchmakingQueue";
+import useEntryReadiness from "./hooks/useEntryReadiness";
 import QueueScreen from "./screens/QueueScreen";
 
 import {
@@ -83,6 +84,7 @@ function GameApp() {
     setPage("GAME");
   }, [setGame]);
   const queue = useMatchmakingQueue(session?.queueId, acceptMatch, expireSession);
+  const entry = useEntryReadiness(!session && page === "NAME");
 
   function showNameScreen() {
     setActionError("");
@@ -95,6 +97,7 @@ function GameApp() {
   }
 
   async function handleJoin(name) {
+    if (!entry.ready) return;
     setBusy(true);
     setActionError("");
 
@@ -200,6 +203,9 @@ function GameApp() {
         onBack={showWelcomeScreen}
         busy={busy}
         error={actionError}
+        ready={entry.ready}
+        preparationError={entry.error}
+        onRetry={entry.retry}
       />
     );
   }
