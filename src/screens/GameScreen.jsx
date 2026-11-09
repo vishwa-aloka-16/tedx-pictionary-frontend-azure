@@ -57,7 +57,7 @@ function CountdownOverlay({
   game,
   now,
 }) {
-  if (game.phase !== "COUNTDOWN") {
+  if (!["COUNTDOWN", "RESUMING"].includes(game.phase)) {
     return null;
   }
 
@@ -73,12 +73,12 @@ function CountdownOverlay({
     <div className="game-overlay">
       <motion.section initial={{ opacity: 0, y: 16, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="countdown-card">
         <span>
-          ROUND {game.countdown_round ?? game.round_number + 1}
+          {game.phase === "RESUMING" ? "RESUMING GAME" : `ROUND ${game.countdown_round ?? game.round_number + 1}`}
         </span>
 
         <AnimatePresence mode="popLayout"><motion.strong key={seconds} initial={{ opacity: 0, scale: 0.65 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.15 }}>{seconds}</motion.strong></AnimatePresence>
 
-        <h2>Get ready to draw</h2>
+        <h2>{game.phase === "RESUMING" ? "Both players are back" : "Get ready to draw"}</h2>
       </motion.section>
     </div>
   );
@@ -300,7 +300,8 @@ export default function GameScreen({
     game.round_seconds || 40;
 
   const secondsLeft =
-    game.round_deadline
+    ["PAUSED", "RESUMING"].includes(game.phase) && game.paused_remaining_seconds != null
+      ? Math.ceil(game.paused_remaining_seconds) : game.round_deadline
       ? Math.max(
           0,
           Math.ceil(
@@ -543,6 +544,18 @@ export default function GameScreen({
         game={game}
         now={now}
       />
+
+      {game.phase === "PAUSED" && (
+        <div className="game-overlay" role="status" aria-live="polite">
+          <motion.section className="result-card" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}>
+            <span className="eyebrow">GAME PAUSED</span>
+            <h2>Opponent disconnected. Waiting for reconnection…</h2>
+            <p>Your points and remaining time are saved.</p>
+            <strong>{Math.max(0, Math.ceil((game.reconnect_deadline || now) - now))} seconds to reconnect</strong>
+            <button className="secondary-button" onClick={onExit}>Leave game</button>
+          </motion.section>
+        </div>
+      )}
 
       <RoundResultOverlay
         game={game}

@@ -329,13 +329,15 @@ export default function LeaderboardScreen() {
                     {game.players.join(" vs ") || "Waiting for players"}
                   </strong>
                   <span>
-                    {game.status === "in_progress"
+                    {game.phase === "PAUSED" ? "Waiting for reconnection"
+                      : game.phase === "RESUMING" ? "Resuming game"
+                      : game.status === "in_progress"
                       ? "Game in progress"
                       : "Game completed"}
                   </span>
                 </div>
                 <span className={`game-status game-status--${game.status}`}>
-                  {game.status === "in_progress" ? "LIVE" : "DONE"}
+                  {game.phase === "PAUSED" ? "PAUSED" : game.phase === "RESUMING" ? "RESUMING" : game.status === "in_progress" ? "LIVE" : "DONE"}
                 </span>
               </div>
 

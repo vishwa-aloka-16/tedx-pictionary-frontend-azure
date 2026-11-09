@@ -37,7 +37,7 @@ export default function WelcomeScreen({ onStart }) {
           <dl className="welcome-stats" aria-label="Game at a glance">
             <div><dt>Players</dt><dd>02</dd></div>
             <div><dt>Rounds</dt><dd>06</dd></div>
-            <div><dt>Seconds per round</dt><dd>30</dd></div>
+            <div><dt>Seconds per round</dt><dd>40</dd></div>
           </dl>
         </div>
         <aside className="how-to-play-card" aria-labelledby="how-to-title">

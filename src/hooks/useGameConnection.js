@@ -22,7 +22,7 @@ export default function useGameConnection(session, onSessionExpired) {
       setGame(null);
       setConnection("disconnected");
 
-      if (session) {
+      if (session && !session.queueId) {
         setConnectionError(
           "Invalid saved game session. Please return to the welcome screen.",
         );
@@ -58,84 +58,83 @@ export default function useGameConnection(session, onSessionExpired) {
       }
     }
 
-    function connectWebSocket() {
-      if (!active) return;
+    function clearTimers() {
+      window.clearTimeout(reconnectTimerRef.current);
+      window.clearInterval(heartbeatRef.current);
+    }
 
+    function connectWebSocket(force = false) {
+      if (!active || document.visibilityState === "hidden") return;
+      const previous = socketRef.current;
+      if (!force && previous && [WebSocket.OPEN, WebSocket.CONNECTING].includes(previous.readyState)) return;
+      clearTimers();
+      socketRef.current = null;
+      previous?.close();
       setConnection("connecting");
-
-      const socketUrl =
-        `${WS_URL}/ws/games/${encodeURIComponent(
-          session.gameId,
-        )}` +
-        `?player_id=${encodeURIComponent(
-          session.playerId,
-        )}`;
-
-      const socket = new WebSocket(socketUrl);
-
+      const socket = new WebSocket(`${WS_URL}/ws/games/${encodeURIComponent(session.gameId)}?player_id=${encodeURIComponent(session.playerId)}`);
       socketRef.current = socket;
-
+      const current = () => active && socketRef.current === socket;
       socket.onopen = () => {
-        if (!active) return;
-
+        if (!current()) return;
         setConnection("connected");
         setConnectionError("");
-
-        window.clearInterval(heartbeatRef.current);
-
+        loadInitialState();
         heartbeatRef.current = window.setInterval(() => {
-          if (socket.readyState === WebSocket.OPEN) {
-            socket.send("ping");
-          }
-        }, 15000);
+          if (current() && socket.readyState === WebSocket.OPEN) socket.send("ping");
+        }, 3000);
       };
-
       socket.onmessage = (event) => {
-        if (!active) return;
-
+        if (!current()) return;
         try {
           const message = JSON.parse(event.data);
-
           if (message.type === "game_state") {
             notifyBackendReady();
             setGame(message.game);
           }
-        } catch {
-          // Ignore malformed WebSocket messages.
-        }
+        } catch { /* Ignore malformed messages. */ }
       };
-
-      socket.onerror = () => {
-        if (!active) return;
-
-        setConnection("disconnected");
-      };
-
+      socket.onerror = () => { if (current()) setConnection("disconnected"); };
       socket.onclose = (event) => {
-        window.clearInterval(heartbeatRef.current);
-
-        if (!active) return;
+        if (!current()) return;
+        clearTimers();
+        socketRef.current = null;
         if (event.code === 4403) {
           active = false;
           onSessionExpired?.();
           return;
         }
-
         setConnection("connecting");
-
-        reconnectTimerRef.current =
-          window.setTimeout(
-            connectWebSocket,
-            1500,
-          );
+        if (document.visibilityState !== "hidden") {
+          reconnectTimerRef.current = window.setTimeout(() => connectWebSocket(), 1500);
+        }
       };
     }
 
-    loadInitialState();
+    function visibilityChanged() {
+      if (document.visibilityState === "hidden") {
+        clearTimers();
+        const socket = socketRef.current;
+        socketRef.current = null;
+        try {
+          if (socket?.readyState === WebSocket.OPEN) socket.send("away");
+        } catch { /* The network may already be unavailable. */ }
+        socket?.close();
+        setConnection("connecting");
+      } else {
+        connectWebSocket(true);
+      }
+    }
+    function resume() { if (document.visibilityState !== "hidden") connectWebSocket(true); }
+    document.addEventListener("visibilitychange", visibilityChanged);
+    window.addEventListener("online", resume);
+    window.addEventListener("pageshow", resume);
     connectWebSocket();
 
     return () => {
       active = false;
+      document.removeEventListener("visibilitychange", visibilityChanged);
+      window.removeEventListener("online", resume);
+      window.removeEventListener("pageshow", resume);
 
       window.clearTimeout(
         reconnectTimerRef.current,

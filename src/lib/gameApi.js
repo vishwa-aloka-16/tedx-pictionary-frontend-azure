@@ -87,6 +87,14 @@ export function joinMatchmaking(name) {
   });
 }
 
+export function getQueueStatus(queueId, signal) {
+  return apiRequest(`/matchmaking/queue/${encodeURIComponent(queueId)}`, { signal });
+}
+
+export function leaveQueue(queueId) {
+  return apiRequest(`/matchmaking/queue/${encodeURIComponent(queueId)}/leave`, { method: "POST", keepalive: true });
+}
+
 export function getGame(gameId, playerId) {
   return apiRequest(
     `/games/${gameId}?player_id=${encodeURIComponent(

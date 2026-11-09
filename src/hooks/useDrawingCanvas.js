@@ -87,6 +87,7 @@ export default function useDrawingCanvas({
   const drawingVersionRef = useRef(0);
   const hasDrawingRef = useRef(false);
   const cachedImageRef = useRef(null);
+  const canvasIdentityRef = useRef(null);
 
   const [prediction, setPrediction] =
     useState(null);
@@ -144,7 +145,10 @@ export default function useDrawingCanvas({
   }, [capturePending, gameId, playerId, roundEventId, roundWinnerId, cosmeticDrawSeconds, cosmeticDrawEndsAt]);
 
   useEffect(() => {
-    if (phase === "ROUND_RESULT") return;
+    if (["ROUND_RESULT", "PAUSED", "RESUMING"].includes(phase)) return;
+    const identity = `${gameId}:${playerId}:${roundNumber}`;
+    if (canvasIdentityRef.current === identity) return;
+    canvasIdentityRef.current = identity;
     drawingVersionRef.current += 1;
     drawingRef.current = false;
     activePointerRef.current = null;
@@ -252,6 +256,7 @@ export default function useDrawingCanvas({
           predictionEnabledRef.current &&
           hasDrawingRef.current &&
           (drawingChangedRef.current ||
+            requestVersion !== drawingVersionRef.current ||
             (retry && requestVersion === drawingVersionRef.current))
         ) {
           window.clearTimeout(predictionTimerRef.current);
@@ -265,6 +270,13 @@ export default function useDrawingCanvas({
         }
       }
     }, [gameId, playerId, predictionDelayMs]);
+
+  // Resume recognition for the existing canvas after the reconnect countdown.
+  useEffect(() => {
+    if (phase !== "DRAWING" || !hasDrawingRef.current) return undefined;
+    const timer = window.setTimeout(predictDrawing, predictionDelayMs);
+    return () => window.clearTimeout(timer);
+  }, [phase, predictDrawing, predictionDelayMs]);
 
   const schedulePrediction =
     useCallback(() => {

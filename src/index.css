@@ -2035,3 +2035,16 @@ a:focus-visible {
 .leaderboard-podium .podium-place--1 .podium-avatar { width: 84px; height: 84px; font-size: 70px; }
 .leaderboard-design .leaderboard-player-avatar { background: transparent; border: 0; box-shadow: none; border-radius: 0; width: 40px; height: 40px; font-size: 32px; line-height: 1; }
 @media (max-width: 520px) { .leaderboard-podium .podium-avatar { width: 58px; height: 58px; font-size: 48px; } .leaderboard-podium .podium-place--1 .podium-avatar { width: 68px; height: 68px; font-size: 58px; } .leaderboard-design .leaderboard-player-avatar { width: 34px; height: 34px; font-size: 28px; } }
+.queue-position {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  color: #7450a5;
+}
+.queue-position strong { font-size: clamp(2.5rem, 8vw, 4rem); }
+.waiting-notice {
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #f3eefb;
+  color: #634092;
+}

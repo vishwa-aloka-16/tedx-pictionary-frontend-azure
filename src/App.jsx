@@ -5,12 +5,15 @@ import BrandLogos from "./components/BrandLogos";
 import BackendGate from "./components/BackendGate";
 
 import useGameConnection from "./hooks/useGameConnection";
+import useMatchmakingQueue from "./hooks/useMatchmakingQueue";
+import QueueScreen from "./screens/QueueScreen";
 
 import {
   joinMatchmaking,
   leaveGame,
   markPlayerReady,
   restartGame,
+  leaveQueue,
 } from "./lib/gameApi";
 
 import {
@@ -72,6 +75,14 @@ function GameApp() {
     connection,
     connectionError,
   } = useGameConnection(session, expireSession);
+  const acceptMatch = useCallback((result) => {
+    const nextSession = { gameId: result.game.id, playerId: result.player_id };
+    saveSession(nextSession);
+    setGame(result.game);
+    setSession(nextSession);
+    setPage("GAME");
+  }, [setGame]);
+  const queue = useMatchmakingQueue(session?.queueId, acceptMatch, expireSession);
 
   function showNameScreen() {
     setActionError("");
@@ -91,16 +102,14 @@ function GameApp() {
       const result =
         await joinMatchmaking(name);
 
-      const nextSession = {
-        gameId: result.game.id,
-        playerId: result.player_id,
-      };
-
-      saveSession(nextSession);
-
-      setGame(result.game);
-      setSession(nextSession);
-      setPage("GAME");
+      if (result.queued) {
+        const nextSession = { queueId: result.queue_id };
+        saveSession(nextSession);
+        setSession(nextSession);
+        setPage("QUEUE");
+      } else {
+        acceptMatch(result);
+      }
     } catch (error) {
       setActionError(error.message);
     } finally {
@@ -157,7 +166,8 @@ function GameApp() {
     setGame(null);
     if (leavingSession) {
       try {
-        await leaveGame(
+        if (leavingSession.queueId) await leaveQueue(leavingSession.queueId);
+        else await leaveGame(
           leavingSession.gameId,
           leavingSession.playerId,
         );
@@ -174,6 +184,7 @@ function GameApp() {
   }
 
   function renderScreen() {
+  if (session?.queueId) return <QueueScreen position={queue.position} error={queue.error} onExit={handleExit} />;
   if (!session && page === "WELCOME") {
     return (
       <WelcomeScreen
@@ -255,7 +266,7 @@ function GameApp() {
     />
   );
   }
-  const screenKey = !session ? page : !game ? "connecting"
+  const screenKey = session?.queueId ? "queue" : !session ? page : !game ? "connecting"
     : ["WAITING", "LOBBY"].includes(game.phase) ? `waiting-${game.id}` : `game-${game.id}`;
   return <PageTransition screenKey={screenKey}>{renderScreen()}</PageTransition>;
 }

@@ -23,13 +23,15 @@ export default function WaitingScreen({
     );
 
   const bothPlayersConnected =
-    game.players.length === 2;
+    game.players.length === 2 && game.players.every((player) => player.connected !== false);
 
   return (
     <main className="waiting-page">
       <Brand connection={connection} />
 
       <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="waiting-card">
+        {game.cancellation_message && <p className="waiting-notice" role="status">{game.cancellation_message}</p>}
+        {opponent && opponent.connected === false && <p className="waiting-notice" role="status">Waiting for your opponent to connect…</p>}
         {!bothPlayersConnected ? (
           <>
             <div className="waiting-animation">
@@ -153,6 +155,7 @@ export default function WaitingScreen({
             onClick={onReady}
             disabled={
               busy ||
+              connection !== "connected" ||
               !bothPlayersConnected ||
               currentPlayer?.ready
             }
