@@ -3,6 +3,7 @@ import BrandLogos from "./BrandLogos";
 export default function Brand({
   connection,
   title,
+  actions,
 }) {
   let connectionText = "Ready";
 
@@ -31,6 +32,7 @@ export default function Brand({
         <span className="connection-dot" />
         {connectionText}
       </div>
+      {actions}
     </header>
   );
 }

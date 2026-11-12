@@ -8,6 +8,7 @@ import useGameConnection from "./hooks/useGameConnection";
 import useMatchmakingQueue from "./hooks/useMatchmakingQueue";
 import useEntryReadiness from "./hooks/useEntryReadiness";
 import QueueScreen from "./screens/QueueScreen";
+import DisconnectedScreen from "./screens/DisconnectedScreen";
 
 import {
   joinMatchmaking,
@@ -70,12 +71,19 @@ function GameApp() {
     setPage("WELCOME");
     setActionError("");
   }, []);
+  const handleSessionDisconnected = useCallback(() => {
+    removeSession();
+    setSession(null);
+    setPage("DISCONNECTED");
+    setActionError("");
+    setBusy(false);
+  }, []);
   const {
     game,
     setGame,
     connection,
     connectionError,
-  } = useGameConnection(session, expireSession);
+  } = useGameConnection(session, handleSessionDisconnected);
   const acceptMatch = useCallback((result) => {
     const nextSession = { gameId: result.game.id, playerId: result.player_id };
     saveSession(nextSession);
@@ -187,6 +195,7 @@ function GameApp() {
   }
 
   function renderScreen() {
+  if (!session && page === "DISCONNECTED") return <DisconnectedScreen onHome={handleExit} />;
   if (session?.queueId) return <QueueScreen position={queue.position} error={queue.error} onExit={handleExit} />;
   if (!session && page === "WELCOME") {
     return (

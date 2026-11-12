@@ -12,7 +12,27 @@ const steps = [
 export default function WelcomeScreen({ onStart }) {
   return (
     <main className="welcome-page">
-      <Brand />
+      <Brand actions={
+        <details className="welcome-settings" onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.currentTarget.open = false;
+            event.currentTarget.querySelector("summary").focus();
+          }
+        }} onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
+        }}>
+          <summary aria-label="Open navigation links" title="Navigation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m9.5 3-.6 2.2-1.6.9-2.2-.6-2.5 4.3 1.6 1.6v1.9l-1.6 1.6 2.5 4.3 2.2-.6 1.6.9.6 2.2h5l.6-2.2 1.6-.9 2.2.6 2.5-4.3-1.6-1.6v-1.9l1.6-1.6-2.5-4.3-2.2.6-1.6-.9-.6-2.2z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </summary>
+          <nav className="welcome-settings-links" aria-label="Quick links">
+            <a href="/admin">Admin <span aria-hidden="true">↗</span></a>
+            <a href="/leaderboard">Leaderboard <span aria-hidden="true">↗</span></a>
+          </nav>
+        </details>
+      } />
       <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="welcome-layout" aria-labelledby="welcome-title">
         <div className="welcome-content">
 

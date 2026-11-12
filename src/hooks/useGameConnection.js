@@ -32,8 +32,24 @@ export default function useGameConnection(session, onSessionExpired) {
     }
 
     let active = true;
+    let validationInFlight = false;
+
+    function expireGameSession() {
+      if (!active) return;
+      active = false;
+      clearTimers();
+      const socket = socketRef.current;
+      socketRef.current = null;
+      socket?.close();
+      setGame(null);
+      setConnection("disconnected");
+      setConnectionError("");
+      onSessionExpired?.();
+    }
 
     async function loadInitialState() {
+      if (!active || validationInFlight) return;
+      validationInFlight = true;
       try {
         const state = await getGame(
           session.gameId,
@@ -47,14 +63,15 @@ export default function useGameConnection(session, onSessionExpired) {
       } catch (error) {
         if (active) {
           if (error.status === 403 || error.status === 404) {
-            active = false;
-            onSessionExpired?.();
+            expireGameSession();
             return;
           }
           setConnectionError(
             error.message || "Could not load the game.",
           );
         }
+      } finally {
+        validationInFlight = false;
       }
     }
 
@@ -73,6 +90,10 @@ export default function useGameConnection(session, onSessionExpired) {
       setConnection("connecting");
       const socket = new WebSocket(`${WS_URL}/ws/games/${encodeURIComponent(session.gameId)}?player_id=${encodeURIComponent(session.playerId)}`);
       socketRef.current = socket;
+      // A rejected WebSocket handshake can appear as code 1006, without an
+      // onopen event. Validate membership independently so expired seats cannot
+      // leave the old drawing screen reconnecting forever.
+      loadInitialState();
       const current = () => active && socketRef.current === socket;
       socket.onopen = () => {
         if (!current()) return;
@@ -99,10 +120,10 @@ export default function useGameConnection(session, onSessionExpired) {
         clearTimers();
         socketRef.current = null;
         if (event.code === 4403) {
-          active = false;
-          onSessionExpired?.();
+          expireGameSession();
           return;
         }
+        loadInitialState();
         setConnection("connecting");
         if (document.visibilityState !== "hidden") {
           reconnectTimerRef.current = window.setTimeout(() => connectWebSocket(), 1500);
@@ -111,6 +132,7 @@ export default function useGameConnection(session, onSessionExpired) {
     }
 
     function visibilityChanged() {
+      if (!active) return;
       if (document.visibilityState === "hidden") {
         clearTimers();
         const socket = socketRef.current;

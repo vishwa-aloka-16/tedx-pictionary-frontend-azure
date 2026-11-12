@@ -2048,3 +2048,16 @@ a:focus-visible {
   background: #f3eefb;
   color: #634092;
 }
+.session-disconnected-card { max-width: 560px; text-align: center; }
+.session-disconnected-icon {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin: 28px auto 20px;
+  border-radius: 50%;
+  background: #eee8ff;
+  color: #7443e9;
+  font-size: 38px;
+}
+.session-disconnected-card .primary-button { margin-top: 16px; }

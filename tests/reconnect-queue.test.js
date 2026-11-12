@@ -40,7 +40,7 @@ function browser(extra = {}) {
   };
 }
 
-function gameBrowser(session = { gameId: "g", playerId: "p" }) {
+function gameBrowser(session = { gameId: "g", playerId: "p" }, fetchGame) {
   const sockets = [];
   let loads = 0, expired = 0;
   class Socket {
@@ -53,7 +53,7 @@ function gameBrowser(session = { gameId: "g", playerId: "p" }) {
   }
   const h = browser({ session, WebSocket: Socket, WS_URL: "wss://game.test", notifyBackendReady() {},
     newerGame: (_old, incoming) => incoming,
-    getGame: async () => { loads++; return { id: "g", phase: "PAUSED", snapshot_seq: loads }; },
+    getGame: async () => { loads++; return fetchGame ? fetchGame(loads) : { id: "g", phase: "PAUSED", snapshot_seq: loads }; },
     onExpired: () => { expired++; },
   });
   vm.runInContext(`${source("useGameConnection")}\nglobalThis.hook = useGameConnection(session, onExpired);`, h.context);
@@ -111,6 +111,63 @@ test("queued session does not create an invalid game connection", () => {
   assert.equal(h.loads(), 0);
   assert.equal(h.states[2], "");
   h.unmount();
+});
+
+for (const status of [403, 404]) {
+  test(`expired seat is detected even when the WebSocket never opens (HTTP ${status})`, async () => {
+    const h = gameBrowser(undefined, async () => { throw Object.assign(new Error("Session expired"), { status }); });
+    h.sockets[0].close(1006);
+    await h.flush();
+    assert.equal(h.expired(), 1);
+    assert.equal(h.states[0], null);
+    assert.equal(h.states[1], "disconnected");
+    assert.equal(h.timers.size, 0);
+    assert.equal(h.intervals.size, 0);
+    h.visibility("hidden"); h.visibility("visible");
+    assert.equal(h.sockets.length, 1);
+    h.unmount();
+  });
+}
+
+test("returning after the seat expires clears the previously displayed game", async () => {
+  const h = gameBrowser(undefined, async (request) => {
+    if (request > 1) throw Object.assign(new Error("Player not in game"), { status: 403 });
+    return { id: "g", phase: "DRAWING", snapshot_seq: 1 };
+  });
+  h.sockets[0].open(); await h.flush();
+  assert.equal(h.states[0].phase, "DRAWING");
+  h.visibility("hidden"); h.visibility("visible");
+  h.sockets[1].close(1006); await h.flush();
+  assert.equal(h.expired(), 1);
+  assert.equal(h.states[0], null);
+  assert.equal(h.timers.size, 0);
+  h.unmount();
+});
+
+test("temporary backend failure keeps the session and allows reconnection", async () => {
+  const h = gameBrowser(undefined, async (request) => {
+    if (request === 1) throw Object.assign(new Error("Service unavailable"), { status: 503 });
+    return { id: "g", phase: "PAUSED", snapshot_seq: 2 };
+  });
+  h.sockets[0].close(1006); await h.flush();
+  assert.equal(h.expired(), 0);
+  const [key, timer] = [...h.timers.entries()][0];
+  h.timers.delete(key); timer.fn();
+  h.sockets[1].open(); await h.flush();
+  assert.equal(h.states[0].phase, "PAUSED");
+  assert.equal(h.states[1], "connected");
+  assert.equal(h.expired(), 0);
+  h.unmount();
+});
+
+test("an expired response arriving after leaving the screen is ignored", async () => {
+  let reject;
+  const h = gameBrowser(undefined, () => new Promise((_resolve, fail) => { reject = fail; }));
+  h.unmount();
+  reject(Object.assign(new Error("Expired"), { status: 403 }));
+  await h.flush();
+  assert.equal(h.expired(), 0);
+  assert.equal(h.timers.size, 0);
 });
 
 test("queue polls its position and hands off the server-assigned seat", async () => {

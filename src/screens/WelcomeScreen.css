@@ -8,7 +8,53 @@
 
 .welcome-page .navigation {
   max-width: 1240px;
+  gap: 12px;
 }
+
+.welcome-page .navigation > .connection { margin-left: auto; }
+.welcome-settings { position: relative; flex-shrink: 0; z-index: 5; }
+.welcome-settings > summary {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: white;
+  color: #7847a3;
+  cursor: pointer;
+  list-style: none;
+}
+.welcome-settings > summary::-webkit-details-marker { display: none; }
+.welcome-settings > summary svg { width: 22px; height: 22px; }
+.welcome-settings > summary:hover,
+.welcome-settings[open] > summary { background: #eee8f7; }
+.welcome-settings > summary:focus-visible,
+.welcome-settings-links a:focus-visible { outline: 3px solid #8252a9; outline-offset: 3px; }
+.welcome-settings-links {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 190px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 12px 36px #35214d18;
+}
+.welcome-settings-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 650;
+}
+.welcome-settings-links a:hover { background: #f4eef9; color: #7847a3; }
 
 .welcome-page .welcome-layout {
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
