@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import Brand from "../components/Brand";
+import DoodleHighlights from "../components/DoodleHighlights";
 
 export default function WaitingScreen({
   game,
@@ -27,6 +28,7 @@ export default function WaitingScreen({
 
   return (
     <main className="waiting-page">
+      <DoodleHighlights />
       <Brand connection={connection} />
 
       <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="waiting-card">

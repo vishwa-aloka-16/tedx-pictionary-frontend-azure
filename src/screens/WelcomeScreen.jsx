@@ -1,5 +1,7 @@
 import { motion } from "motion/react";
+import { useRef } from "react";
 import Brand from "../components/Brand";
+import DoodleHighlights from "../components/DoodleHighlights";
 import "./WelcomeScreen.css";
 
 const steps = [
@@ -10,8 +12,10 @@ const steps = [
 ];
 
 export default function WelcomeScreen({ onStart }) {
+  const instructionsRef = useRef(null);
   return (
     <main className="welcome-page">
+      <DoodleHighlights />
       <Brand actions={
         <details className="welcome-settings" onKeyDown={(event) => {
           if (event.key === "Escape") {
@@ -59,6 +63,7 @@ export default function WelcomeScreen({ onStart }) {
             <div><dt>Rounds</dt><dd>06</dd></div>
             <div><dt>Seconds per round</dt><dd>40</dd></div>
           </dl>
+          <button type="button" className="welcome-how-to-button" onClick={() => instructionsRef.current?.showModal()}>How to play <span aria-hidden="true">↗</span></button>
         </div>
         <aside className="how-to-play-card" aria-labelledby="how-to-title">
           <div className="play-card-heading">
@@ -83,6 +88,23 @@ export default function WelcomeScreen({ onStart }) {
           </div>
         </aside>
       </motion.section>
+      <dialog ref={instructionsRef} className="welcome-instructions-dialog" aria-labelledby="instructions-dialog-title" onClick={(event) => {
+        if (event.target === event.currentTarget) instructionsRef.current.close();
+      }}>
+        <div className="welcome-instructions-content">
+          <button type="button" className="welcome-instructions-close" onClick={() => instructionsRef.current.close()} aria-label="Close instructions">×</button>
+          <span className="eyebrow">THE GAME PLAN</span>
+          <h2 id="instructions-dialog-title">Think fast. Draw faster.</h2>
+          <ol className="welcome-steps">
+            {steps.map(([title, description], index) => (
+              <li key={title}>
+                <span className="step-number" aria-hidden="true">0{index + 1}</span>
+                <div><h3>{title}</h3><p>{description}</p></div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </dialog>
       <footer className="welcome-footer">
         <span>Human creativity. Artificial intelligence.</span>
         <span>Let’s see what we can create together.</span>

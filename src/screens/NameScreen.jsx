@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { useState } from "react";
 
 import Brand from "../components/Brand";
+import DoodleHighlights from "../components/DoodleHighlights";
 
 export default function NameScreen({
   onJoin,
@@ -36,6 +37,7 @@ export default function NameScreen({
 
   return (
     <main className="name-page">
+      <DoodleHighlights />
       <Brand />
 
       <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="name-card">

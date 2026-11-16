@@ -1,9 +1,11 @@
 import { motion } from "motion/react";
 import Brand from "../components/Brand";
+import DoodleHighlights from "../components/DoodleHighlights";
 
 export default function QueueScreen({ position, error, onExit }) {
   return (
     <main className="waiting-page">
+      <DoodleHighlights />
       <Brand />
       <motion.section className="waiting-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
         <span className="eyebrow">YOU'RE IN THE QUEUE</span>

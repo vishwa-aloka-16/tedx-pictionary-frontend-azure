@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import "./components/EntryBackground.css";
 import { MotionConfig } from "motion/react";
 import PageTransition from "./components/PageTransition";
 import BrandLogos from "./components/BrandLogos";

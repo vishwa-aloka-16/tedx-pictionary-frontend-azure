@@ -279,7 +279,7 @@
 }
 
 .welcome-footer {
-  border-top: 1px solid #e4ddeb;
+  border-top: 0;
   color: #787180;
   display: flex;
   flex-wrap: wrap;
@@ -332,4 +332,86 @@
     transition: none;
     transform: none;
   }
+}
+
+/* Keep the welcome screen within the visible device viewport. */
+.welcome-page {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  overscroll-behavior: none;
+  padding: max(12px, env(safe-area-inset-top)) clamp(16px, 5vw, 72px) max(12px, env(safe-area-inset-bottom));
+}
+.welcome-page > .navigation, .welcome-page > .welcome-footer { width: 100%; }
+.welcome-page > .navigation { padding: 8px 0 16px; }
+.welcome-page .navigation .brand-logos { --logo-width: clamp(100px, 12vw, 160px); }
+.welcome-page .welcome-layout { width: 100%; min-height: 0; gap: clamp(28px, 4vw, 70px); margin: 0 auto; padding: 20px 0; }
+.welcome-page .welcome-content { min-width: 0; }
+.welcome-page .welcome-content h1 { font-size: clamp(34px, min(4.3vw, 7vh), 64px); margin: 10px 0 18px; }
+.welcome-page .welcome-content > p { margin-top: 0; }
+.welcome-page .welcome-actions { margin-top: 22px; gap: 12px; }
+.welcome-page .welcome-stats { margin-top: 28px; padding-top: 18px; }
+.welcome-page .how-to-play-card { padding: clamp(20px, 3vh, 36px); }
+.welcome-page .welcome-steps li { padding: clamp(8px, 1.5vh, 15px) 0; }
+.welcome-page .play-card-intro { margin-bottom: 12px; }
+.welcome-page .play-card-footer { padding-top: 14px; }
+.welcome-page .welcome-footer { padding-top: 12px; font-size: 10px; }
+.welcome-how-to-button { display: none; background: transparent; border: 0; padding: 8px 0; color: #7847a3; font-size: 12px; font-weight: 700; cursor: pointer; }
+.welcome-how-to-button span { margin-left: 6px; }
+.welcome-instructions-dialog { width: min(480px, calc(100vw - 32px)); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); border: 1px solid #e9e2ee; border-radius: 22px; padding: 0; color: #181426; background: white; box-shadow: 0 24px 80px #24163140; overscroll-behavior: contain; }
+.welcome-instructions-dialog::backdrop { background: #24163180; }
+.welcome-instructions-content { position: relative; padding: 36px 24px 20px; }
+.welcome-instructions-content h2 { font-size: 26px; letter-spacing: -.04em; }
+.welcome-instructions-close { position: absolute; right: 12px; top: 8px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: #f4eef9; color: #7847a3; font-size: 24px; cursor: pointer; }
+@media (max-width: 900px), (max-height: 700px) {
+  .welcome-page .how-to-play-card { display: none; }
+  .welcome-page .welcome-layout { grid-template-columns: minmax(0, 1fr); padding: 12px 0; }
+  .welcome-page .welcome-content { text-align: center; }
+  .welcome-page .welcome-content > p { margin-left: auto; margin-right: auto; }
+  .welcome-page .welcome-actions { justify-items: center; }
+  .welcome-page .welcome-button { margin-left: auto; margin-right: auto; }
+  .welcome-page .welcome-stats { margin-left: auto; margin-right: auto; justify-content: center; }
+  .welcome-how-to-button { display: inline-flex; margin-top: 12px; }
+}
+@media (max-width: 600px) {
+  .welcome-page .navigation { flex-wrap: nowrap; gap: 8px; }
+  .welcome-page .navigation .brand-logos { --logo-width: 82px; gap: 12px; }
+  .welcome-page .brand-partner--event { padding-left: 12px; }
+  .welcome-page .brand-caption { font-size: 7px; }
+  .welcome-page .connection { font-size: 10px; padding: 8px; gap: 5px; }
+  .welcome-page .welcome-settings > summary { width: 34px; height: 34px; }
+  .welcome-page .welcome-content h1 { font-size: clamp(28px, 7.8vw, 42px); }
+  .welcome-page .welcome-content > p { font-size: 14px; line-height: 1.65; }
+  .welcome-page .welcome-footer { justify-content: center; }
+  .welcome-page .welcome-footer span:last-child { display: none; }
+}
+@media (max-width: 360px) {
+  .welcome-page .navigation .brand-logos { --logo-width: 68px; gap: 9px; }
+  .welcome-page .brand-partner--event { padding-left: 9px; }
+}
+@media (max-height: 650px) {
+  .welcome-page > .navigation { padding-bottom: 10px; }
+  .welcome-page .brand-logos { --logo-width: 100px; }
+  .welcome-page .welcome-content h1 { font-size: clamp(27px, 5vw, 38px); margin: 4px 0 12px; }
+  .welcome-page .welcome-content > p { font-size: 13px; line-height: 1.5; max-width: 480px; margin-bottom: 0; }
+  .welcome-page .welcome-actions { margin-top: 16px; gap: 8px; }
+  .welcome-page .welcome-button { min-height: 48px; }
+  .welcome-page .welcome-note { font-size: 11px; }
+  .welcome-page .welcome-stats { margin-top: 18px; padding-top: 12px; }
+  .welcome-page .welcome-stats dd { font-size: 24px; }
+  .welcome-page .welcome-how-to-button { margin-top: 6px; }
+}
+@media (max-height: 450px) and (min-width: 600px) {
+  .welcome-page .brand-caption, .welcome-page .welcome-footer { display: none; }
+  .welcome-page .navigation .brand-logos { --logo-width: 96px; }
+  .welcome-page .welcome-layout { padding: 8px 0; }
+  .welcome-page .welcome-content { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; column-gap: 30px; }
+  .welcome-page .welcome-content h1 { grid-column: 1; grid-row: 1; font-size: 28px; }
+  .welcome-page .welcome-content > p { grid-column: 1; grid-row: 2; font-size: 12px; }
+  .welcome-page .welcome-actions { grid-column: 2; grid-row: 1 / 3; margin: 0; }
+  .welcome-page .welcome-stats { grid-column: 1; grid-row: 3; margin-top: 12px; }
+  .welcome-page .welcome-how-to-button { grid-column: 2; grid-row: 3; justify-self: center; }
 }

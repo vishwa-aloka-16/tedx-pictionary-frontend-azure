@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, LayoutGroup } from "motion/react";
 
 import Brand from "../components/Brand";
+import DoodleHighlights from "../components/DoodleHighlights";
 import ScoreBreakdown from "../components/ScoreBreakdown";
 import ArtworkShare from "../components/ArtworkShare";
 import HighScoreCelebration from "../components/HighScoreCelebration";
@@ -192,6 +193,7 @@ export default function LeaderboardScreen() {
 
   return (
     <motion.main className="leaderboard-page" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <DoodleHighlights />
       <AnimatePresence>
       {winnerAnnouncement?.isMatchup && (
         <motion.div className="winner-announcement round-start-announcement motion-announcement" key={winnerAnnouncement.key} role="status"

@@ -1,0 +1,76 @@
+/* Decorative backgrounds belong to entry and display screens, never the canvas. */
+.welcome-page,
+.name-page,
+.waiting-page,
+.leaderboard-page {
+  isolation: isolate;
+  --doodle-clear-top: 150px;
+}
+
+.name-page,
+.waiting-page {
+  background:
+    radial-gradient(ellipse at 5% 65%, #eee8f780, transparent 50%),
+    radial-gradient(ellipse at 95% 15%, #e9e1f580, transparent 40%),
+    #faf9fc;
+}
+
+.welcome-page::before,
+.name-page::before,
+.waiting-page::before,
+.leaderboard-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url("../assets/landing-doodles.svg") repeat;
+  background-size: 1600px 1000px;
+  opacity: .24;
+  pointer-events: none;
+}
+
+.leaderboard-page {
+  position: relative;
+}
+
+.leaderboard-page::before {
+  filter: grayscale(1) brightness(0);
+  opacity: .12;
+}
+
+.doodle-highlights {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Leave the branding clear, then gradually reveal the pattern below it. */
+.welcome-page::before,
+.name-page::before,
+.waiting-page::before,
+.leaderboard-page::before,
+.doodle-highlights {
+  -webkit-mask-image: linear-gradient(to bottom, transparent var(--doodle-clear-top), black calc(var(--doodle-clear-top) + 90px));
+  mask-image: linear-gradient(to bottom, transparent var(--doodle-clear-top), black calc(var(--doodle-clear-top) + 90px));
+}
+.doodle-highlight { opacity: .7; animation: doodle-red-highlight 5s ease-in-out both; }
+@keyframes doodle-red-highlight {
+  0%, 100% { opacity: 0; }
+  20%, 80% { opacity: .7; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .doodle-highlight { animation: none; }
+}
+
+@media (max-width: 600px) {
+  .welcome-page::before,
+  .name-page::before,
+  .waiting-page::before {
+    opacity: .18;
+  }
+  .leaderboard-page::before { opacity: .09; }
+}
