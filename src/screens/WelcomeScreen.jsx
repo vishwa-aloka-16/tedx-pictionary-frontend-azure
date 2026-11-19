@@ -6,7 +6,7 @@ import "./WelcomeScreen.css";
 
 const steps = [
   ["Get your prompt", "You and your opponent get the same secret object."],
-  ["Make your mark", "Bring it to life on the canvas. You have up to 30 seconds."],
+  ["Make your mark", "Bring it to life on the canvas. You have up to 40 seconds."],
   ["Let the AI guess", "Watch the AI try to recognize your drawing as you go."],
   ["Beat your opponent", "The first drawing the AI recognizes correctly wins."],
 ];
