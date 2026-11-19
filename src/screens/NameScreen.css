@@ -1,0 +1,14 @@
+.name-drawing-animation {
+  width: 76px;
+  height: 76px;
+  overflow: hidden;
+}
+.name-drawing-animation svg { width: 64px; height: 64px; }
+.name-doodle-line {
+  stroke: #9b78e2;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.name-pencil-body { fill: #d3c2fb; stroke: #7443d7; stroke-width: 2; stroke-linejoin: round; }
+.name-pencil-detail { stroke: #7443d7; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }

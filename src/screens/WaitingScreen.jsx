@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import Brand from "../components/Brand";
 import DoodleHighlights from "../components/DoodleHighlights";
+import "./WaitingScreen.css";
 
 export default function WaitingScreen({
   game,
